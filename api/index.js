@@ -25,12 +25,14 @@ async function connectDB() {
 // Ruta de prueba
 app.get('/', async (req, res) => {
   try {
-    await connectDB();
+    await connectDB(); // <- puede fallar si la URI no es válida
     res.send('Funciona backend Serenia ✅');
   } catch (err) {
-    res.status(500).send('Error de conexión');
+    console.error(err); // Importante para ver en Vercel logs
+    res.status(500).send('Error de servidor');
   }
 });
+
 
 // Rutas API
 app.post('/api/register', async (req, res) => {
