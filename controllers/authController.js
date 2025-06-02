@@ -1,4 +1,4 @@
-const User = require('../models/User');
+import User from '../models/User.js';
 
 export async function register (req, res) {
     try {
