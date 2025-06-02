@@ -1,4 +1,4 @@
-const { OpenAI } = require('openai');
+import OpenAI from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const promptBase = `🌿 Prompt de Serenia – Agente Virtual de Acompañamiento Emocional
@@ -92,14 +92,14 @@ Si Serenia es invocada para otros temas ajenos al acompañamiento emocional, deb
 
 `;
 
-exports.getSereniaResponse = async (userMessage) => {
-    const completion = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-            { role: 'system', content: promptBase },
-            { role: 'user', content: userMessage }
-        ]
-    });
+export async function getSereniaResponse(userMessage) {
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: promptBase },
+      { role: 'user', content: userMessage }
+    ]
+  });
 
     return completion.choices[0].message.content.trim();
 };
