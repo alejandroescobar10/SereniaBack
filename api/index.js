@@ -17,5 +17,6 @@ app.get('/', (req, res) => {
   res.send('Funciona backend Serenia ✅');
 });
 
-// Exporta como handler para Vercel
-module.exports = app;
+const serverless = require('serverless-http');
+module.exports.handler = serverless(app);
+
