@@ -13,6 +13,9 @@ app.use(express.json());
 app.post('/api/register', authRoutes.register);
 app.post('/api/login', authRoutes.login);
 app.post('/api/chat', chatRoutes.sendMessage);
+app.get('/', (req, res) => {
+  res.send('Funciona backend Serenia ✅');
+});
 
 // Exporta como handler para Vercel
 module.exports = app;
