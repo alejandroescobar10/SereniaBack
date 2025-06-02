@@ -1,34 +1,63 @@
-const express = require('express');
-const cors = require('cors');
-const serverless = require('serverless-http');
-require('dotenv').config();
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
-const connectDB = require('../lib/db');
-const authController = require('../controllers/authController');
-const chatController = require('../controllers/chatController');
+import { register, login } from '../controllers/authController.js';
+import { sendMessage } from '../controllers/chatController.js';
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Middleware para conectar a DB antes de cada request
-app.use(async (req, res, next) => {
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(process.env.MONGO_URI, {
+    dbName: 'serenia',
+  });
+  isConnected = true;
+}
+
+// Ruta de prueba
+app.get('/', async (req, res) => {
   try {
     await connectDB();
-    next();
+    res.send('Funciona backend Serenia ✅');
   } catch (err) {
-    res.status(500).send('Error conectando a MongoDB');
+    res.status(500).send('Error de conexión');
   }
 });
 
-// Ruta test
-app.get('/', (req, res) => {
-  res.send('Funciona backend Serenia ✅');
+// Rutas API
+app.post('/api/register', async (req, res) => {
+  try {
+    await connectDB();
+    await register(req, res);
+  } catch (err) {
+    res.status(500).send('Error en /register');
+  }
 });
 
-// Rutas reales
-app.post('/api/register', authController.register);
-app.post('/api/login', authController.login);
-app.post('/api/chat', chatController.sendMessage);
+app.post('/api/login', async (req, res) => {
+  try {
+    await connectDB();
+    await login(req, res);
+  } catch (err) {
+    res.status(500).send('Error en /login');
+  }
+});
 
-module.exports = serverless(app);
+app.post('/api/chat', async (req, res) => {
+  try {
+    await connectDB();
+    await sendMessage(req, res);
+  } catch (err) {
+    res.status(500).send('Error en /chat');
+  }
+});
+
+export default app;
