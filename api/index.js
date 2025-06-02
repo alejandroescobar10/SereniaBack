@@ -1,35 +1,34 @@
 const express = require('express');
 const cors = require('cors');
 const serverless = require('serverless-http');
-const connectDB = require('../lib/db');
 require('dotenv').config();
 
-const authRoutes = require('../controllers/authController');
-const chatRoutes = require('../controllers/chatController');
+const connectDB = require('../lib/db');
+const authController = require('../controllers/authController');
+const chatController = require('../controllers/chatController');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Ruta base
-app.get('/', async (req, res) => {
-  await connectDB();
+// Middleware para conectar a DB antes de cada request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).send('Error conectando a MongoDB');
+  }
+});
+
+// Ruta test
+app.get('/', (req, res) => {
   res.send('Funciona backend Serenia ✅');
 });
 
-app.post('/api/register', async (req, res) => {
-  await connectDB();
-  return authRoutes.register(req, res);
-});
-
-app.post('/api/login', async (req, res) => {
-  await connectDB();
-  return authRoutes.login(req, res);
-});
-
-app.post('/api/chat', async (req, res) => {
-  await connectDB();
-  return chatRoutes.sendMessage(req, res);
-});
+// Rutas reales
+app.post('/api/register', authController.register);
+app.post('/api/login', authController.login);
+app.post('/api/chat', chatController.sendMessage);
 
 module.exports = serverless(app);
