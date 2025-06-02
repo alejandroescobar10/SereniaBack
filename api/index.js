@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 const serverless = require('serverless-http');
+const connectDB = require('../lib/db');
 require('dotenv').config();
 
 const authRoutes = require('../controllers/authController');
@@ -11,15 +11,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rutas de prueba
-app.get('/', (req, res) => {
+// Ruta base
+app.get('/', async (req, res) => {
+  await connectDB();
   res.send('Funciona backend Serenia ✅');
 });
 
-// Rutas reales
-app.post('/api/register', authRoutes.register);
-app.post('/api/login', authRoutes.login);
-app.post('/api/chat', chatRoutes.sendMessage);
+app.post('/api/register', async (req, res) => {
+  await connectDB();
+  return authRoutes.register(req, res);
+});
 
-// Exportar como función serverless
+app.post('/api/login', async (req, res) => {
+  await connectDB();
+  return authRoutes.login(req, res);
+});
+
+app.post('/api/chat', async (req, res) => {
+  await connectDB();
+  return chatRoutes.sendMessage(req, res);
+});
+
 module.exports = serverless(app);
