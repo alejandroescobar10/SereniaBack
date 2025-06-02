@@ -1,7 +1,7 @@
 const Chat = require('../models/Chat');
 const { getSereniaResponse } = require('../services/openaiService');
 
-exports.sendMessage = async (req, res) => {
+export async function sendMessage (req, res) {
     const { userId, message } = req.body;
 
     try {
